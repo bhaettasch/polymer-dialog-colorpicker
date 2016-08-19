@@ -1,0 +1,229 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`dialog-colorpicker`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="dialog-colorpicker">
+  <template>
+    <style>
+      :host {
+        display: block;
+        z-index:1000;
+        position:absolute;
+        left:40%;
+        top:25%;
+
+        box-shadow: 3px 3px 3px 3px #3c3c3c;
+        background-color: white;
+      }
+
+      .color-picker-modal-head {
+        background-color: var(--dialog-header-backgroundcolor, #0b97c4);
+        color: var(--dialog-header-color, #ffffff);
+        padding:20px;
+        font-weight:bold;
+        font-size:1.3em;
+        text-align: center;
+      }
+
+      .color-picker-modal-body {
+        padding:20px;
+      }
+
+      #color-picker-transparency {
+        width: 280px;
+      }
+
+      #color-picker-text {
+        width:185px;
+        margin-right:10px;
+      }
+
+      #color-picker-confirm {
+        width: 80px;
+      }
+
+      .picker-wrapper,
+      .slide-wrapper {
+        position: relative;
+        float: left;
+      }
+      .picker-indicator,
+      .slide-indicator {
+        position: absolute;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+      }
+      .picker,
+      .slide {
+        cursor: crosshair;
+        float: left;
+      }
+
+      /* Small skin */
+
+      .cp-small {
+        float: left;
+        margin-bottom:5px;
+      }
+      .cp-small .picker {
+        width: 260px;
+        height: 150px;
+      }
+      .cp-small .slide {
+        width: 15px;
+        height: 150px;
+      }
+      .cp-small .slide-wrapper {
+        margin-left: 5px;
+      }
+      .cp-small .picker-indicator {
+        width: 1px;
+        height: 1px;
+        border: 1px solid black;
+        background-color: white;
+      }
+      .cp-small .slide-indicator {
+        width: 100%;
+        height: 2px;
+        left: 0;
+        background-color: black;
+      }
+    </style>
+    <div>
+      <div class="color-picker-modal-head">Select a color</div>
+      <div class="color-picker-modal-body">
+        <div style="margin-bottom:5px;">
+          <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency:</label></b><br>
+          <input id="color-picker-transparency" type="range" value="0" min="0" max="255" step="1" />
+        </div>
+        <div id="color-picker-inner" class="cp-small">
+          <b style="font-size: 0.8em;"><label for="color-picker-text">Color:</label></b><br>
+          <div class="cp-small picker-wrapper">
+            <div id="picker" class="cp-small picker"></div>
+            <div id="picker-indicator" class="cp-small picker-indicator"></div>
+          </div>
+          <div class="cp-small slide-wrapper">
+            <div id="slide" class="cp-small slide"></div>
+            <div id="slide-indicator" class="cp-small slide-indicator"></div>
+          </div>
+        </div>
+
+        <div style="clear:both;">
+          <input id="color-picker-text" type="text" style="" />
+          <input id="color-picker-confirm" style="width:80px;" type="button" value="Select" />
+        </div>
+      </div>
+
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'dialog-colorpicker',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'dialog-colorpicker'
+        },
+        initialValue: String,
+        value: String
+      },
+      listeners: {
+        'color-picker-transparency.input' : 'transparencySliderCallback',
+        'color-picker-confirm.tap' : 'confirmSelectionCallback'
+      },
+      show : function(color) {
+        this.style.display = "block";
+
+        if(color != undefined)
+          this.setColor(color);
+      },
+      hide: function () {
+        this.style.display = "none";
+      },
+      cp: null,
+      ready: function() {
+        // Get dom references
+        var picker = this.$$('#picker');
+        var pickerIndicator = this.$$('#picker-indicator');
+        var slider = this.$$('#slide');
+        var slideIndicator = this.$$('#slide-indicator');
+        var that = this;
+
+        // Create the real color picker
+        cp = ColorPicker(
+                slider,
+                picker,
+                // Callback
+                function(hex, hsv, rgb, pickerCoordinate, slideCoordinate) {
+                  // Update indicators
+                  ColorPicker.positionIndicators(slideIndicator, pickerIndicator, slideCoordinate, pickerCoordinate);
+
+                  // Run custom callback
+                  that.updateColorCallback(hex, hsv);
+                });
+
+        // Set initial values
+        this.setColor(this.initialValue);
+      },
+      setColor : function(val) {
+        cp.setHex(val.substr(0,7));
+      },
+      updateColorCallback: function(hex, hsv) {
+        var transparencyValue = this.getValue().substr(-2);
+        if(transparencyValue == "")
+          transparencyValue = "00";
+        // Set new text (text color depends on brightness and saturation of current color)
+        this.updateText(hex + transparencyValue, hsv.v > 0.7 && hsv.s < 0.2);
+      },
+      transparencySliderCallback: function(e) {
+        this.updateTransparency(e.target.value);
+      },
+      updateTransparency: function (v) {
+        var hexRepresentation = Number(v).toString(16);
+        if(hexRepresentation.length == 1)
+          hexRepresentation = "0" + hexRepresentation;
+        var originalText = this.$$('#color-picker-text').value;
+        if(originalText.length == 2)
+          originalText = "";
+        else
+          originalText = originalText.substring(0, originalText.length-2);
+        this.updateText(originalText + hexRepresentation);
+      },
+      updateText: function(hexRepresentation, darkText) {
+        // Get dom reference
+        var pickerInput = this.$$('#color-picker-text');
+
+        // Set value as text
+        pickerInput.value = hexRepresentation;
+
+        // Set value as background color (and front color accordingly)
+        pickerInput.style.backgroundColor = hexRepresentation.substr(0, 7);
+        if(darkText)
+          pickerInput.style.color = "#000000";
+        else
+          pickerInput.style.color = "#FFFFFF";
+      },
+      confirmSelectionCallback: function(e) {
+        // Hide color picker
+        this.hide();
+
+        // Fire custom selected event
+        this.fire('selected', {value: this.getValue()})
+      },
+      getValue: function() {
+        return this.$$('#color-picker-text').value;
+      }
+    });
+  </script>
+
+  <script src="colorpicker.js"></script>
+</dom-module>
