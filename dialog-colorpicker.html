@@ -38,6 +38,10 @@
         width: 280px;
       }
 
+      #color-picker-transparency-only {
+        vertical-align: middle;
+      }
+
       #color-picker-text {
         width:185px;
         margin-right:10px;
@@ -99,11 +103,11 @@
       <div class="color-picker-modal-head">Select a color</div>
       <div class="color-picker-modal-body">
         <div style="margin-bottom:5px;">
-          <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency:</label></b><br>
+          <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency</label> (<label for="color-picker-transparency-only">only?</label>  <input type="checkbox" id="color-picker-transparency-only">)</b><br>
           <input id="color-picker-transparency" type="range" value="0" min="0" max="255" step="1" />
         </div>
         <div id="color-picker-inner" class="cp-small">
-          <b style="font-size: 0.8em;"><label for="color-picker-text">Color:</label></b><br>
+          <b style="font-size: 0.8em;"><label for="color-picker-text">Color</label></b><br>
           <div class="cp-small picker-wrapper">
             <div id="picker" class="cp-small picker"></div>
             <div id="picker-indicator" class="cp-small picker-indicator"></div>
@@ -138,13 +142,17 @@
       },
       listeners: {
         'color-picker-transparency.input' : 'transparencySliderCallback',
-        'color-picker-confirm.tap' : 'confirmSelectionCallback'
+        'color-picker-confirm.tap' : 'confirmSelectionCallback',
+        'color-picker-transparency-only.change' : 'transparencyOnlyCallback'
       },
       show : function(color) {
         this.style.display = "block";
 
         if(color != undefined)
+        {
           this.setColor(color);
+          this.deactivateTransparencyOnly(this.$$('#color-picker-transparency-only'), this.$$('#color-picker-inner'));
+        }
       },
       hide: function () {
         this.style.display = "none";
@@ -206,11 +214,19 @@
         pickerInput.value = hexRepresentation;
 
         // Set value as background color (and front color accordingly)
-        pickerInput.style.backgroundColor = hexRepresentation.substr(0, 7);
-        if(darkText)
-          pickerInput.style.color = "#000000";
+        if(hexRepresentation.length > 2)
+        {
+          pickerInput.style.backgroundColor = hexRepresentation.substr(0, 7);
+          if(darkText)
+            pickerInput.style.color = "#000000";
+          else
+            pickerInput.style.color = "#FFFFFF";
+        }
         else
-          pickerInput.style.color = "#FFFFFF";
+        {
+          pickerInput.style.backgroundColor = "#FFFFFF";
+          pickerInput.style.color = "#000000";
+        }
       },
       confirmSelectionCallback: function(e) {
         // Hide color picker
@@ -221,6 +237,30 @@
       },
       getValue: function() {
         return this.$$('#color-picker-text').value;
+      },
+      transparencyOnlyCallback: function(e) {
+        console.log(e);
+        var colorArea = this.$$('#color-picker-inner');
+        if(e.target.checked)
+        {
+          this.activateTransparencyOnly(e.target, colorArea);
+        }
+        else
+        {
+          this.deactivateTransparencyOnly(e.target, colorArea);
+        }
+      },
+      activateTransparencyOnly: function(cbx, colorArea)
+      {
+        colorArea.style.display = 'none';
+        this.updateText(this.getValue().substr(-2), true);
+        cbx.checked = true;
+      },
+      deactivateTransparencyOnly: function(cbx, colorArea)
+      {
+        console.log(cbx);
+        colorArea.style.display = 'block';
+        cbx.checked = false;
       }
     });
   </script>
