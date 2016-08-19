@@ -1,0 +1,6 @@
+# Dev directories
+bower_components
+node_modules
+
+build
+.idea/
