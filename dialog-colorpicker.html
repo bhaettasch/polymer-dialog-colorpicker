@@ -10,258 +10,262 @@
 -->
 
 <dom-module id="dialog-colorpicker">
-  <template>
-    <style>
-      :host {
-        padding:0;
-      }
+    <template>
+        <style>
+            :host {
+                padding: 0;
+            }
 
-      #color-picker-modal-head {
-        color: var(--dialog-header-color, #0b97c4);
-        font-weight:bold;
-        font-size:1.3em;
-        text-align: center;
-      }
+            #color-picker-modal-head {
+                color: var(--dialog-header-color, #0b97c4);
+                font-weight: bold;
+                font-size: 1.3em;
+                text-align: center;
+            }
 
-      #color-picker-transparency {
-        width: 280px;
-      }
+            #color-picker-transparency {
+                width: 280px;
+            }
 
-      #color-picker-transparency-only {
-        vertical-align: middle;
-      }
+            #color-picker-transparency-only {
+                vertical-align: middle;
+            }
 
-      #color-picker-text {
-        width:185px;
-        margin-right:10px;
-      }
+            #color-picker-text {
+                width: 185px;
+                margin-right: 10px;
+            }
 
-      #color-picker-confirm {
-        width: 80px;
-      }
+            #color-picker-confirm {
+                width: 80px;
+            }
 
-      .picker-wrapper,
-      .slide-wrapper {
-        position: relative;
-        float: left;
-      }
-      .picker-indicator,
-      .slide-indicator {
-        position: absolute;
-        left: 0;
-        top: 0;
-        pointer-events: none;
-      }
-      .picker,
-      .slide {
-        cursor: crosshair;
-        float: left;
-      }
+            .picker-wrapper,
+            .slide-wrapper {
+                position: relative;
+                float: left;
+            }
 
-      /* Small skin */
+            .picker-indicator,
+            .slide-indicator {
+                position: absolute;
+                left: 0;
+                top: 0;
+                pointer-events: none;
+            }
 
-      .cp-small {
-        float: left;
-        margin-bottom:5px;
-      }
-      .cp-small .picker {
-        width: 260px;
-        height: 150px;
-      }
-      .cp-small .slide {
-        width: 15px;
-        height: 150px;
-      }
-      .cp-small .slide-wrapper {
-        margin-left: 5px;
-      }
-      .cp-small .picker-indicator {
-        width: 1px;
-        height: 1px;
-        border: 1px solid black;
-        background-color: white;
-      }
-      .cp-small .slide-indicator {
-        width: 100%;
-        height: 2px;
-        left: 0;
-        background-color: black;
-      }
-    </style>
-    <paper-dialog id="modal">
-      <div id="color-picker-modal-head">Select a color</div>
-      <div id="color-picker-modal-body">
-        <div style="margin-bottom:5px;">
-          <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency</label> (<label for="color-picker-transparency-only">only?</label>  <input type="checkbox" id="color-picker-transparency-only">)</b><br>
-          <paper-slider id="color-picker-transparency" min="0" max="255" step="1" value="0"></paper-slider>
-        </div>
-        <div id="color-picker-inner" class="cp-small">
-          <b style="font-size: 0.8em;"><label for="color-picker-text">Color</label></b><br>
-          <div class="cp-small picker-wrapper">
-            <div id="picker" class="cp-small picker"></div>
-            <div id="picker-indicator" class="cp-small picker-indicator"></div>
-          </div>
-          <div class="cp-small slide-wrapper">
-            <div id="slide" class="cp-small slide"></div>
-            <div id="slide-indicator" class="cp-small slide-indicator"></div>
-          </div>
-        </div>
+            .picker,
+            .slide {
+                cursor: crosshair;
+                float: left;
+            }
 
-        <div style="clear:both;">
-          <input id="color-picker-text" type="text" style="" />
-          <input id="color-picker-confirm" style="width:80px;" type="button" value="Select" />
-        </div>
-      </div>
-    </paper-dialog>
-  </template>
+            /* Small skin */
 
-  <script>
-    Polymer({
+            .cp-small {
+                float: left;
+                margin-bottom: 5px;
+            }
 
-      is: 'dialog-colorpicker',
+            .cp-small .picker {
+                width: 260px;
+                height: 150px;
+            }
 
-      properties: {
-        prop1: {
-          type: String,
-          value: 'dialog-colorpicker'
-        },
-        initialValue: String,
-        value: String
-      },
-      listeners: {
-        'color-picker-transparency.change' : 'transparencySliderCallback',
-        'color-picker-confirm.tap' : 'confirmSelectionCallback',
-        'color-picker-transparency-only.change' : 'transparencyOnlyCallback'
-      },
-      show : function(color) {
-        modal.open();
+            .cp-small .slide {
+                width: 15px;
+                height: 150px;
+            }
 
-        var cbx = this.$$('#color-picker-transparency-only');
-        var inner = this.$$('#color-picker-inner');
+            .cp-small .slide-wrapper {
+                margin-left: 5px;
+            }
 
-        if(color != undefined)
-          this.setColor(color);
+            .cp-small .picker-indicator {
+                width: 1px;
+                height: 1px;
+                border: 1px solid black;
+                background-color: white;
+            }
 
-        if(color !=undefined && color.length == 2)
-          this.activateTransparencyOnly(cbx, inner);
-        else
-          this.deactivateTransparencyOnly(cbx, inner);
-      },
-      hide: function () {
-        modal.close();
-      },
-      cp: null,
-      ready: function() {
-        // Get dom references
-        var picker = this.$$('#picker');
-        var pickerIndicator = this.$$('#picker-indicator');
-        var slider = this.$$('#slide');
-        var slideIndicator = this.$$('#slide-indicator');
-        var that = this;
+            .cp-small .slide-indicator {
+                width: 100%;
+                height: 2px;
+                left: 0;
+                background-color: black;
+            }
+        </style>
+        <paper-dialog id="modal">
+            <div id="color-picker-modal-head">Select a color</div>
+            <div id="color-picker-modal-body">
+                <div style="margin-bottom:5px;">
+                    <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency</label>
+                        (<label for="color-picker-transparency-only">only?</label>
+                        <input type="checkbox" id="color-picker-transparency-only">)
+                    </b><br>
+                    <paper-slider id="color-picker-transparency" min="0" max="255" step="1" value="0"></paper-slider>
+                </div>
+                <div id="color-picker-inner" class="cp-small">
+                    <b style="font-size: 0.8em;"><label for="color-picker-text">Color</label></b><br>
+                    <div class="cp-small picker-wrapper">
+                        <div id="picker" class="cp-small picker"></div>
+                        <div id="picker-indicator" class="cp-small picker-indicator"></div>
+                    </div>
+                    <div class="cp-small slide-wrapper">
+                        <div id="slide" class="cp-small slide"></div>
+                        <div id="slide-indicator" class="cp-small slide-indicator"></div>
+                    </div>
+                </div>
 
-        // Create the real color picker
-        cp = ColorPicker(
-                slider,
-                picker,
-                // Callback
-                function(hex, hsv, rgb, pickerCoordinate, slideCoordinate) {
-                  // Update indicators
-                  ColorPicker.positionIndicators(slideIndicator, pickerIndicator, slideCoordinate, pickerCoordinate);
+                <div style="clear:both;">
+                    <input id="color-picker-text" type="text" style=""/>
+                    <input id="color-picker-confirm" style="width:80px;" type="button" value="Select"/>
+                </div>
+            </div>
+        </paper-dialog>
+    </template>
 
-                  // Run custom callback
-                  that.updateColorCallback(hex, hsv);
-                });
+    <script>
+        Polymer({
 
-        // Set initial values
-        this.setColor(this.initialValue);
-      },
-      setColor : function(val) {
-        var hexString = val.substr(0,7);
-        cp.setHex(hexString);
+            is: 'dialog-colorpicker',
 
-        var transparencyValue = parseInt(hexString.substr(-2));
-        this.$$('#color-picker-transparency').value = transparencyValue;
-        this.updateTransparency(transparencyValue);
-      },
-      updateColorCallback: function(hex, hsv) {
-        var transparencyValue = this.getValue().substr(-2);
-        if(transparencyValue == "")
-          transparencyValue = "00";
-        // Set new text (text color depends on brightness and saturation of current color)
-        this.updateText(hex + transparencyValue, hsv.v > 0.7 && hsv.s < 0.2);
-      },
-      transparencySliderCallback: function(e) {
-        this.updateTransparency(e.target.value);
-      },
-      updateTransparency: function (v) {
-        var hexRepresentation = Number(v).toString(16);
-        if(hexRepresentation.length == 1)
-          hexRepresentation = "0" + hexRepresentation;
-        var originalText = this.$$('#color-picker-text').value;
-        if(originalText.length == 2)
-          originalText = "";
-        else
-          originalText = originalText.substring(0, originalText.length-2);
-        this.updateText(originalText + hexRepresentation);
-      },
-      updateText: function(hexRepresentation, darkText) {
-        // Get dom reference
-        var pickerInput = this.$$('#color-picker-text');
+            properties: {
+                prop1: {
+                    type: String,
+                    value: 'dialog-colorpicker'
+                },
+                initialValue: String,
+                value: String
+            },
+            listeners: {
+                'color-picker-transparency.change': 'transparencySliderCallback',
+                'color-picker-confirm.tap': 'confirmSelectionCallback',
+                'color-picker-transparency-only.change': 'transparencyOnlyCallback'
+            },
+            show: function (color) {
+                modal.open();
 
-        // Set value as text
-        pickerInput.value = hexRepresentation;
+                var cbx = this.$$('#color-picker-transparency-only');
+                var inner = this.$$('#color-picker-inner');
 
-        // Set value as background color (and front color accordingly)
-        if(hexRepresentation.length > 2)
-        {
-          pickerInput.style.backgroundColor = hexRepresentation.substr(0, 7);
-          if(darkText)
-            pickerInput.style.color = "#000000";
-          else
-            pickerInput.style.color = "#FFFFFF";
-        }
-        else
-        {
-          pickerInput.style.backgroundColor = "#FFFFFF";
-          pickerInput.style.color = "#000000";
-        }
-      },
-      confirmSelectionCallback: function(e) {
-        // Hide color picker
-        this.hide();
+                if (color != undefined)
+                    this.setColor(color);
 
-        // Fire custom selected event
-        this.fire('selected', {value: this.getValue()})
-      },
-      getValue: function() {
-        return this.$$('#color-picker-text').value;
-      },
-      transparencyOnlyCallback: function(e) {
-        console.log(e);
-        var colorArea = this.$$('#color-picker-inner');
-        if(e.target.checked)
-        {
-          this.activateTransparencyOnly(e.target, colorArea);
-        }
-        else
-        {
-          this.deactivateTransparencyOnly(e.target, colorArea);
-        }
-      },
-      activateTransparencyOnly: function(cbx, colorArea)
-      {
-        colorArea.style.display = 'none';
-        this.updateText(this.getValue().substr(-2), true);
-        cbx.checked = true;
-      },
-      deactivateTransparencyOnly: function(cbx, colorArea)
-      {
-        console.log(cbx);
-        colorArea.style.display = 'block';
-        cbx.checked = false;
-      }
-    });
-  </script>
+                if (color != undefined && color.length == 2)
+                    this.activateTransparencyOnly(cbx, inner);
+                else
+                    this.deactivateTransparencyOnly(cbx, inner);
+            },
+            hide: function () {
+                modal.close();
+            },
+            cp: null,
+            ready: function () {
+                // Get dom references
+                var picker = this.$$('#picker');
+                var pickerIndicator = this.$$('#picker-indicator');
+                var slider = this.$$('#slide');
+                var slideIndicator = this.$$('#slide-indicator');
+                var that = this;
 
-  <script src="colorpicker.js"></script>
+                // Create the real color picker
+                cp = ColorPicker(
+                        slider,
+                        picker,
+                        // Callback
+                        function (hex, hsv, rgb, pickerCoordinate, slideCoordinate) {
+                            // Update indicators
+                            ColorPicker.positionIndicators(slideIndicator, pickerIndicator, slideCoordinate, pickerCoordinate);
+
+                            // Run custom callback
+                            that.updateColorCallback(hex, hsv);
+                        });
+
+                // Set initial values
+                this.setColor(this.initialValue);
+            },
+            setColor: function (val) {
+                var hexString = val.substr(0, 7);
+                cp.setHex(hexString);
+
+                var transparencyValue = parseInt(hexString.substr(-2));
+                this.$$('#color-picker-transparency').value = transparencyValue;
+                this.updateTransparency(transparencyValue);
+            },
+            updateColorCallback: function (hex, hsv) {
+                var transparencyValue = this.getValue().substr(-2);
+                if (transparencyValue == "")
+                    transparencyValue = "00";
+                // Set new text (text color depends on brightness and saturation of current color)
+                this.updateText(hex + transparencyValue, hsv.v > 0.7 && hsv.s < 0.2);
+            },
+            transparencySliderCallback: function (e) {
+                this.updateTransparency(e.target.value);
+            },
+            updateTransparency: function (v) {
+                var hexRepresentation = Number(v).toString(16);
+                if (hexRepresentation.length == 1)
+                    hexRepresentation = "0" + hexRepresentation;
+                var originalText = this.$$('#color-picker-text').value;
+                if (originalText.length == 2)
+                    originalText = "";
+                else
+                    originalText = originalText.substring(0, originalText.length - 2);
+                this.updateText(originalText + hexRepresentation);
+            },
+            updateText: function (hexRepresentation, darkText) {
+                // Get dom reference
+                var pickerInput = this.$$('#color-picker-text');
+
+                // Set value as text
+                pickerInput.value = hexRepresentation;
+
+                // Set value as background color (and front color accordingly)
+                if (hexRepresentation.length > 2) {
+                    pickerInput.style.backgroundColor = hexRepresentation.substr(0, 7);
+                    if (darkText)
+                        pickerInput.style.color = "#000000";
+                    else
+                        pickerInput.style.color = "#FFFFFF";
+                }
+                else {
+                    pickerInput.style.backgroundColor = "#FFFFFF";
+                    pickerInput.style.color = "#000000";
+                }
+            },
+            confirmSelectionCallback: function (e) {
+                // Hide color picker
+                this.hide();
+
+                // Fire custom selected event
+                this.fire('selected', {value: this.getValue()})
+            },
+            getValue: function () {
+                return this.$$('#color-picker-text').value;
+            },
+            transparencyOnlyCallback: function (e) {
+                console.log(e);
+                var colorArea = this.$$('#color-picker-inner');
+                if (e.target.checked) {
+                    this.activateTransparencyOnly(e.target, colorArea);
+                }
+                else {
+                    this.deactivateTransparencyOnly(e.target, colorArea);
+                }
+            },
+            activateTransparencyOnly: function (cbx, colorArea) {
+                colorArea.style.display = 'none';
+                this.updateText(this.getValue().substr(-2), true);
+                cbx.checked = true;
+            },
+            deactivateTransparencyOnly: function (cbx, colorArea) {
+                console.log(cbx);
+                colorArea.style.display = 'block';
+                cbx.checked = false;
+            }
+        });
+    </script>
+
+    <script src="colorpicker.js"></script>
 </dom-module>
