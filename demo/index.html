@@ -13,14 +13,6 @@
 
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
-
-    <script>
-      function showColorPicker()
-      {
-        var cp = document.getElementById("color-picker");
-        cp.show("#002370");
-      }
-    </script>
   </head>
   <body>
 
@@ -28,10 +20,13 @@
       <h3>Basic dialog-colorpicker Demo</h3>
       <demo-snippet>
         <template>
-          <dialog-colorpicker id="color-picker" initial-value="#54967600"></dialog-colorpicker>
+          <dialog-colorpicker id="colorpicker" initial-value="#54967600"></dialog-colorpicker>
 
-          <button onclick="showColorPicker()">Open Color Picker</button>
+          <button onclick="colorpicker.show()">Open Color Picker (Initial/last value)</button>
 
+          <button onclick="colorpicker.show('#002370')">Open Color Picker (Blue)</button>
+
+          <button onclick="colorpicker.show('57')">Open Color Picker (Transparency only)</button>
         </template>
       </demo-snippet>
     </div>
