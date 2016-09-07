@@ -136,11 +136,16 @@
       show : function(color) {
         modal.open();
 
+        var cbx = this.$$('#color-picker-transparency-only');
+        var inner = this.$$('#color-picker-inner');
+
         if(color != undefined)
-        {
           this.setColor(color);
-          this.deactivateTransparencyOnly(this.$$('#color-picker-transparency-only'), this.$$('#color-picker-inner'));
-        }
+
+        if(color !=undefined && color.length == 2)
+          this.activateTransparencyOnly(cbx, inner);
+        else
+          this.deactivateTransparencyOnly(cbx, inner);
       },
       hide: function () {
         modal.close();
@@ -171,7 +176,12 @@
         this.setColor(this.initialValue);
       },
       setColor : function(val) {
-        cp.setHex(val.substr(0,7));
+        var hexString = val.substr(0,7);
+        cp.setHex(hexString);
+
+        var transparencyValue = parseInt(hexString.substr(-2));
+        this.$$('#color-picker-transparency').value = transparencyValue;
+        this.updateTransparency(transparencyValue);
       },
       updateColorCallback: function(hex, hsv) {
         var transparencyValue = this.getValue().substr(-2);
