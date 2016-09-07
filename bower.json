@@ -2,7 +2,9 @@
   "name": "dialog-colorpicker",
   "main": "dialog-colorpicker.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.4.0"
+    "polymer": "Polymer/polymer#^1.4.0",
+    "paper-dialog": "PolymerElements/paper-dialog#^1.1.0",
+    "paper-slider": "PolymerElements/paper-slider#^1.0.11"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

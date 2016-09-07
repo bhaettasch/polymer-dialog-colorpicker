@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-slider/paper-slider.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
 
 <!--
 `dialog-colorpicker`
@@ -11,27 +13,14 @@
   <template>
     <style>
       :host {
-        display: block;
-        z-index:1000;
-        position:absolute;
-        left:40%;
-        top:25%;
-
-        box-shadow: 3px 3px 3px 3px #3c3c3c;
-        background-color: white;
+        padding:0;
       }
 
-      .color-picker-modal-head {
-        background-color: var(--dialog-header-backgroundcolor, #0b97c4);
-        color: var(--dialog-header-color, #ffffff);
-        padding:20px;
+      #color-picker-modal-head {
+        color: var(--dialog-header-color, #0b97c4);
         font-weight:bold;
         font-size:1.3em;
         text-align: center;
-      }
-
-      .color-picker-modal-body {
-        padding:20px;
       }
 
       #color-picker-transparency {
@@ -99,12 +88,12 @@
         background-color: black;
       }
     </style>
-    <div>
-      <div class="color-picker-modal-head">Select a color</div>
-      <div class="color-picker-modal-body">
+    <paper-dialog id="modal">
+      <div id="color-picker-modal-head">Select a color</div>
+      <div id="color-picker-modal-body">
         <div style="margin-bottom:5px;">
           <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency</label> (<label for="color-picker-transparency-only">only?</label>  <input type="checkbox" id="color-picker-transparency-only">)</b><br>
-          <input id="color-picker-transparency" type="range" value="0" min="0" max="255" step="1" />
+          <paper-slider id="color-picker-transparency" min="0" max="255" step="1" value="0"></paper-slider>
         </div>
         <div id="color-picker-inner" class="cp-small">
           <b style="font-size: 0.8em;"><label for="color-picker-text">Color</label></b><br>
@@ -123,8 +112,7 @@
           <input id="color-picker-confirm" style="width:80px;" type="button" value="Select" />
         </div>
       </div>
-
-    </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -141,12 +129,12 @@
         value: String
       },
       listeners: {
-        'color-picker-transparency.input' : 'transparencySliderCallback',
+        'color-picker-transparency.change' : 'transparencySliderCallback',
         'color-picker-confirm.tap' : 'confirmSelectionCallback',
         'color-picker-transparency-only.change' : 'transparencyOnlyCallback'
       },
       show : function(color) {
-        this.style.display = "block";
+        modal.open();
 
         if(color != undefined)
         {
@@ -155,7 +143,7 @@
         }
       },
       hide: function () {
-        this.style.display = "none";
+        modal.close();
       },
       cp: null,
       ready: function() {
