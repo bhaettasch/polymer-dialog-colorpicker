@@ -183,13 +183,14 @@
                         });
 
                 // Set initial values
-                this.setColor(this.initialValue);
+                if(this.initialValue != undefined && this.initialValue != '')
+                    this.setColor(this.initialValue);
             },
             setColor: function (val) {
                 var hexString = val.substr(0, 7);
                 cp.setHex(hexString);
 
-                var transparencyValue = parseInt(hexString.substr(-2));
+                var transparencyValue = parseInt(hexString.substr(-2), 16);
                 this.$$('#color-picker-transparency').value = transparencyValue;
                 this.updateTransparency(transparencyValue);
             },
@@ -245,7 +246,6 @@
                 return this.$$('#color-picker-text').value;
             },
             transparencyOnlyCallback: function (e) {
-                console.log(e);
                 var colorArea = this.$$('#color-picker-inner');
                 if (e.target.checked) {
                     this.activateTransparencyOnly(e.target, colorArea);
@@ -260,7 +260,6 @@
                 cbx.checked = true;
             },
             deactivateTransparencyOnly: function (cbx, colorArea) {
-                console.log(cbx);
                 colorArea.style.display = 'block';
                 cbx.checked = false;
             }
