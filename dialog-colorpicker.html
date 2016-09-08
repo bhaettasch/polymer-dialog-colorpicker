@@ -98,14 +98,11 @@
         <paper-dialog id="modal">
             <div id="color-picker-modal-head">Select a color</div>
             <div id="color-picker-modal-body">
-                <div style="margin-bottom:5px;">
-                    <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency</label>
-                        (<label for="color-picker-transparency-only">only?</label>
-                        <input type="checkbox" id="color-picker-transparency-only">)
-                    </b><br>
+                <div id="transparencyArea" style="margin-bottom:5px;">
+                    <b style="font-size: 0.8em;"><label for="color-picker-transparency">Transparency</label></b><br>
                     <paper-slider id="color-picker-transparency" min="0" max="255" step="1" value="0"></paper-slider>
                 </div>
-                <div id="color-picker-inner" class="cp-small">
+                <div id="colorArea" class="cp-small">
                     <b style="font-size: 0.8em;"><label for="color-picker-text">Color</label></b><br>
                     <div class="cp-small picker-wrapper">
                         <div id="picker" class="cp-small picker"></div>
@@ -136,26 +133,43 @@
                     value: 'dialog-colorpicker'
                 },
                 initialValue: String,
-                value: String
+                value: String,
+                mode: {
+                    type: String,
+                    value: 'all'
+                }
             },
             listeners: {
                 'color-picker-transparency.change': 'transparencySliderCallback',
-                'color-picker-confirm.tap': 'confirmSelectionCallback',
-                'color-picker-transparency-only.change': 'transparencyOnlyCallback'
+                'color-picker-confirm.tap': 'confirmSelectionCallback'
             },
-            show: function (color) {
+            show: function (color, mode, customCallback) {
                 modal.open();
 
-                var cbx = this.$$('#color-picker-transparency-only');
-                var inner = this.$$('#color-picker-inner');
+                if(mode != undefined)
+                    this.properties.mode.value = mode;
 
-                if (color != undefined)
+                if(customCallback != undefined)
+                    this.customCallback = customCallback;
+
+                switch(this.properties.mode.value)
+                {
+                    case "transparency":
+                        this.showArea(transparencyArea);
+                        this.hideArea(colorArea);
+                        break;
+                    case "color":
+                        this.showArea(colorArea);
+                        this.hideArea(transparencyArea);
+                        break;
+                    case "all":
+                        this.showArea(transparencyArea);
+                        this.showArea(colorArea);
+                        break;
+                }
+
+                if(color != undefined)
                     this.setColor(color);
-
-                if (color != undefined && color.length == 2)
-                    this.activateTransparencyOnly(cbx, inner);
-                else
-                    this.deactivateTransparencyOnly(cbx, inner);
             },
             hide: function () {
                 modal.close();
@@ -170,7 +184,7 @@
                 var that = this;
 
                 // Create the real color picker
-                cp = ColorPicker(
+                this.cp = ColorPicker(
                         slider,
                         picker,
                         // Callback
@@ -187,19 +201,28 @@
                     this.setColor(this.initialValue);
             },
             setColor: function (val) {
-                var hexString = val.substr(0, 7);
-                cp.setHex(hexString);
-
-                var transparencyValue = parseInt(hexString.substr(-2), 16);
-                this.$$('#color-picker-transparency').value = transparencyValue;
-                this.updateTransparency(transparencyValue);
+                if(this.properties.mode.value == 'color' || this.properties.mode.value == 'all')
+                {
+                    var hexString = val.substr(0, 7);
+                    this.cp.setHex(hexString);
+                }
+                if(this.properties.mode.value == 'transparency' || this.properties.mode.value == 'all')
+                {
+                    var transparencyValue = parseInt(val.substr(-2), 16);
+                    this.$$('#color-picker-transparency').value = transparencyValue;
+                    this.updateTransparency(transparencyValue);
+                }
             },
             updateColorCallback: function (hex, hsv) {
-                var transparencyValue = this.getValue().substr(-2);
-                if (transparencyValue == "")
-                    transparencyValue = "00";
-                // Set new text (text color depends on brightness and saturation of current color)
-                this.updateText(hex + transparencyValue, hsv.v > 0.7 && hsv.s < 0.2);
+                if(this.properties.mode.value != 'color')
+                {
+                    var transparencyValue = this.getValue().substr(-2);
+                    if (transparencyValue == "")
+                        transparencyValue = "00";
+                    // Set new text (text color depends on brightness and saturation of current color)
+                    hex = hex + transparencyValue;
+                }
+                this.updateText(hex, hsv.v > 0.7 && hsv.s < 0.2);
             },
             transparencySliderCallback: function (e) {
                 this.updateTransparency(e.target.value);
@@ -208,12 +231,18 @@
                 var hexRepresentation = Number(v).toString(16);
                 if (hexRepresentation.length == 1)
                     hexRepresentation = "0" + hexRepresentation;
-                var originalText = this.$$('#color-picker-text').value;
-                if (originalText.length == 2)
-                    originalText = "";
-                else
-                    originalText = originalText.substring(0, originalText.length - 2);
-                this.updateText(originalText + hexRepresentation);
+
+                if(this.properties.mode.value != 'transparency')
+                {
+                    var originalText = this.getValue();
+                    if (originalText.length == 2)
+                        originalText = "";
+                    else
+                        originalText = originalText.substring(0, originalText.length - 2);
+
+                    hexRepresentation = originalText + hexRepresentation;
+                }
+                this.updateText(hexRepresentation);
             },
             updateText: function (hexRepresentation, darkText) {
                 // Get dom reference
@@ -223,7 +252,7 @@
                 pickerInput.value = hexRepresentation;
 
                 // Set value as background color (and front color accordingly)
-                if (hexRepresentation.length > 2) {
+                if (this.properties.mode.value != 'transparency') {
                     pickerInput.style.backgroundColor = hexRepresentation.substr(0, 7);
                     if (darkText)
                         pickerInput.style.color = "#000000";
@@ -235,9 +264,13 @@
                     pickerInput.style.color = "#000000";
                 }
             },
+            customCallback: null,
             confirmSelectionCallback: function (e) {
                 // Hide color picker
                 this.hide();
+
+                if(this.customCallback != null)
+                    this.customCallback(this.getValue());
 
                 // Fire custom selected event
                 this.fire('selected', {value: this.getValue()})
@@ -245,23 +278,11 @@
             getValue: function () {
                 return this.$$('#color-picker-text').value;
             },
-            transparencyOnlyCallback: function (e) {
-                var colorArea = this.$$('#color-picker-inner');
-                if (e.target.checked) {
-                    this.activateTransparencyOnly(e.target, colorArea);
-                }
-                else {
-                    this.deactivateTransparencyOnly(e.target, colorArea);
-                }
+            hideArea: function(area) {
+              area.style.display = 'none'
             },
-            activateTransparencyOnly: function (cbx, colorArea) {
-                colorArea.style.display = 'none';
-                this.updateText(this.getValue().substr(-2), true);
-                cbx.checked = true;
-            },
-            deactivateTransparencyOnly: function (cbx, colorArea) {
-                colorArea.style.display = 'block';
-                cbx.checked = false;
+            showArea: function(area) {
+                area.style.display = 'block'
             }
         });
     </script>
