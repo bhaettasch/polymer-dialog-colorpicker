@@ -6,7 +6,7 @@ You may create a dialog, open it via javascript and optionally pass in a initial
 
 The code for the actual color picker is taken from FlexiColorPicker by DavidDurman (licensed under MIT License): https://github.com/DavidDurman/FlexiColorPicker
 
-![Screenshot](color-picker-demo.png) ![Screenshot Transparency only](color-picker-demo-transparency-only.png)
+![Screenshot](color-picker-demo.png) ![Screenshot Color only](color-picker-demo-color-only.png) ![Screenshot Transparency only](color-picker-demo-transparency-only.png)
 
 ## Develop
 
