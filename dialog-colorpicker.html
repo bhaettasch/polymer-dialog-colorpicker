@@ -209,7 +209,7 @@
                 if(this.properties.mode.value == 'transparency' || this.properties.mode.value == 'all')
                 {
                     var transparencyValue = parseInt(val.substr(-2), 16);
-                    this.$$('#color-picker-transparency').value = transparencyValue;
+                    this.$$('#color-picker-transparency').value = 255-transparencyValue;
                     this.updateTransparency(transparencyValue);
                 }
             },
@@ -225,7 +225,7 @@
                 this.updateText(hex, hsv.v > 0.7 && hsv.s < 0.2);
             },
             transparencySliderCallback: function (e) {
-                this.updateTransparency(e.target.value);
+                this.updateTransparency(255-e.target.value);
             },
             updateTransparency: function (v) {
                 var hexRepresentation = Number(v).toString(16);
